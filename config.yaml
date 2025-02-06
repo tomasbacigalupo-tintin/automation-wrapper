@@ -1,0 +1,54 @@
+# config.yaml
+target: "192.168.1.100"                # IP del objetivo
+output_dir: "~/resultados_{target}"     # Los resultados se guardarán en el directorio home dentro de una carpeta nombrada según el objetivo
+
+tools:
+  nmap:
+    # Escaneo completo de puertos, detección de versiones, sistema operativo y scripts de vulnerabilidad y descubrimiento
+    command: "nmap"
+    options: "-p- -sV -O --script vuln,discovery --min-rate 500 --reason {target}"
+    
+  nikto:
+    # Escaneo web avanzado con visualización detallada y afinación en todos los tests disponibles
+    command: "nikto"
+    options: "-h {target} -Display V -Format txt -Tuning 1,2,3,4,5,6,7,8"
+    
+  gobuster:
+    # Enumeración de directorios con búsqueda de extensiones comunes y 50 threads para acelerar el proceso
+    command: "gobuster"
+    options: "dir -u http://{target} -w /usr/share/wordlists/dirb/common.txt -x php,html,js,txt -t 50"
+    
+  sqlmap:
+    # Detección y enumeración de bases de datos con parámetros avanzados de riesgo y nivel de pruebas
+    command: "sqlmap"
+    options: "-u http://{target}/pagina.php?id=1 --batch --random-agent --threads=10 --risk=3 --level=5 --dbs"
+    
+  xsstrike:
+    # Escaneo de vulnerabilidades XSS con crawling automático para detectar más puntos de inyección
+    command: "xsstrike"
+    options: "-u http://{target} --crawl --auto"
+    
+  wpscan:
+    # Auditoría de sitios WordPress con enumeración de usuarios y comprobación sin banner ni TLS
+    command: "wpscan"
+    options: "--url http://{target} --no-banner --disable-tls-checks --enumerate u"
+    
+  whatweb:
+    # Identificación detallada de tecnologías web con modo verbose para mayor información
+    command: "whatweb"
+    options: "http://{target} --verbose"
+    
+  amass:
+    # Enumeración de subdominios en modo activo, mostrando las fuentes de descubrimiento
+    command: "amass"
+    options: "enum -d {target} -active -src"
+    
+  enum4linux:
+    # Enumeración avanzada de servicios SMB en sistemas Windows con salida detallada
+    command: "enum4linux"
+    options: "-a -v {target}"
+    
+  ffuf:
+    # Fuzzing de directorios con colores, 50 threads y filtrado por códigos de respuesta comunes
+    command: "ffuf"
+    options: "-u http://{target}/FUZZ -w /usr/share/wordlists/dirb/common.txt -c -t 50 -mc 200,204,301,302,307,403"

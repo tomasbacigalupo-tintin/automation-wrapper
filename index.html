@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Progreso de Escaneos</title>
+  <style>
+    /* Reset básico */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6f8;
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+    }
+    header {
+      background: #007BFF;
+      color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    header h1 {
+      margin-bottom: 10px;
+      font-size: 2rem;
+    }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin-right: 15px;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+    nav a:hover {
+      color: #d4d4d4;
+    }
+    main {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    thead {
+      background: #007BFF;
+      color: #fff;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    tbody tr:hover {
+      background: #f1f1f1;
+    }
+    .btn {
+      display: inline-block;
+      background: #007BFF;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: background 0.3s ease, transform 0.3s ease;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #0056b3;
+      transform: translateY(-2px);
+    }
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #777;
+    }
+    /* Estilos para tabla responsive */
+    @media (max-width: 768px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      thead tr {
+        display: none;
+      }
+      tr {
+        margin-bottom: 15px;
+      }
+      td {
+        padding-left: 50%;
+        position: relative;
+      }
+      td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 45%;
+        padding-left: 15px;
+        font-weight: bold;
+      }
+    }
+  </style>
+  <script>
+    // Función que consulta el endpoint /progress cada 2 segundos
+    function fetchProgress() {
+      fetch('/progress')
+        .then(response => response.json())
+        .then(data => {
+          const tableBody = document.getElementById("progressTableBody");
+          tableBody.innerHTML = ""; // Limpia el contenido previo
+          for (const tool in data) {
+            const row = document.createElement("tr");
+            
+            // Celda: Herramienta
+            const tdTool = document.createElement("td");
+            tdTool.setAttribute("data-label", "Herramienta");
+            tdTool.textContent = tool;
+            
+            // Celda: Estado
+            const tdStatus = document.createElement("td");
+            tdStatus.setAttribute("data-label", "Estado");
+            tdStatus.textContent = data[tool].status;
+            
+            // Celda: Error
+            const tdError = document.createElement("td");
+            tdError.setAttribute("data-label", "Error");
+            tdError.textContent = data[tool].error || "";
+            
+            // Celda: Comando
+            const tdCommand = document.createElement("td");
+            tdCommand.setAttribute("data-label", "Comando");
+            tdCommand.textContent = data[tool].command;
+            
+            // Celda: Resultados con botón interactivo
+            const tdResults = document.createElement("td");
+            tdResults.setAttribute("data-label", "Resultados");
+            const resultLink = document.createElement("a");
+            resultLink.href = "/results/" + tool;
+            resultLink.target = "_blank";
+            resultLink.textContent = "Ver";
+            resultLink.classList.add("btn");
+            tdResults.appendChild(resultLink);
+            
+            // Agregar todas las celdas a la fila
+            row.appendChild(tdTool);
+            row.appendChild(tdStatus);
+            row.appendChild(tdError);
+            row.appendChild(tdCommand);
+            row.appendChild(tdResults);
+            
+            tableBody.appendChild(row);
+          }
+        })
+        .catch(error => console.error("Error al obtener el progreso:", error));
+    }
+    // Consulta inicial y cada 2 segundos
+    window.onload = () => {
+      fetchProgress();
+      setInterval(fetchProgress, 2000);
+    };
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Progreso de Escaneos</h1>
+    <nav>
+      <a href="/">Inicio</a>
+      <a href="/about">Acerca de</a>
+      <a href="/contact">Contacto</a>
+    </nav>
+  </header>
+  <main>
+    <section>
+      <h2>Estado Actual</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Herramienta</th>
+            <th>Estado</th>
+            <th>Error</th>
+            <th>Comando</th>
+            <th>Resultados</th>
+          </tr>
+        </thead>
+        <tbody id="progressTableBody">
+          <!-- Las filas se agregarán dinámicamente mediante JavaScript -->
+        </tbody>
+      </table>
+      <!-- Botón para actualizar manualmente el progreso -->
+      <button class="btn" onclick="fetchProgress()">Actualizar Ahora</button>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Progreso de Escaneos. Todos los derechos reservados.</p>
+  </footer>
+</body>
+</html>
